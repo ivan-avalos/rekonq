@@ -139,7 +139,17 @@ class Rekonq:
         # DEBUG
         #print('From: '+' [row='+ str(arow) + ', col=' + str(acol)+']')
         #print('To  : '+' [row='+ str(brow) + ', col=' + str(bcol)+']')
-        
+
+        # Check values to avoid "out of range" error -_-
+        if not (arow > 0 and arow < 7):
+            return False
+        if not (acol > 0 and acol < 7):
+            return False
+        if not (brow > 0 and brow < 7):
+            return False
+        if not (bcol > 0 and bcol < 7):
+            return False
+
         a = self.board[arow][acol]
         b = self.board[brow][bcol]
         
