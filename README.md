@@ -15,13 +15,11 @@ screen python3 rekonq.py
 
 ## Usage
 
-Move from cell a1 to b2 and put a *
++ Move from cell a1 to b2 and put a *
+    + **[PLAYER A]$** a1 b2 *
 
-_[PLAYER A]$_ a1 b2 *
-
-The only command I will explain in this README
-
-_[PLAYER B]$_ help
++ The only command I will explain in this README
+    + **[PLAYER B]$** help
 
 ## License
 
