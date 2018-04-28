@@ -62,6 +62,8 @@ def get_cell_char (flags):
 
 help_message = """Commands:
 \t<from> <to> [*|o]   Make a move
+\tboard               Print board
+\thistory             Show moves history
 \tfinish              Finish game and annouce winner
 \texit                Quit game
 \thelp                Show this help menu
@@ -91,6 +93,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 class Rekonq:
     board = []
+    hist  = []
     
     def __init__(self):
         # Create empty matrix
@@ -104,6 +107,7 @@ class Rekonq:
         # Initialize game
         self.board[0][0] = cell_flags.FLAG_OCCUPIED
         self.board[7][7] = cell_flags.FLAG_OCCUPIED | cell_flags.FLAG_PLAYER_B
+        self.hist = []
 
     def print_board (self):
         t.print_color(t.bcolors.BOLD, '  ', end='')
@@ -155,28 +159,32 @@ class Rekonq:
         
         # Filter based verification
 
-        # Step 1. Empty cell
-        if not isset_flag(a, cell_flags.FLAG_OCCUPIED):
-            return False
+        # Step 1. Avoid eating your own kingdom or using the other player's cells
+        if isset_flag(b, cell_flags.FLAG_OCCUPIED):
+            # Step 1a. _to_ occupied
+            if isset_flag(b, cell_flags.FLAG_PLAYER_B) == player:
+                return False
+        else:
+            # Step 1b. _to_ empty
+            if isset_flag(a, cell_flags.FLAG_PLAYER_B) != player:
+                return False
+        
         # Step 2. Wrong move orientation FLAG_CROSS
         if not isset_flag(a, cell_flags.FLAG_CROSS):
-            # X Verification
+            # Step 2a. X Verification
             if not ((arow - 1 == brow and acol - 1 == bcol) or (arow - 1 == brow and acol + 1 == bcol) or \
                (arow + 1 == brow and acol + 1 == bcol) or (arow + 1 == brow and acol - 1 == bcol)):
                 return False
         else:
-            # Cross verification
+            # Step 2b. Cross verification
             if not ((arow - 1 == brow and acol == bcol) or (arow == brow and acol + 1 == bcol) or \
                (arow + 1 == brow and acol == bcol) or (arow == brow and acol - 1 == bcol)):
                 return False
         # Step 3. Permanent
         if isset_flag(b, cell_flags.FLAG_PERMANENT):
             return False
-        # Step 4. Player
-        if isset_flag(a, cell_flags.FLAG_PLAYER_B) != player:
-            return False
         
-        # Step 5. Set new cell flags
+        # Step 4. Set new cell flags
         self.board[brow][bcol] = cell_flags.FLAG_OCCUPIED
         if bcross:
             self.board[brow][bcol] |= cell_flags.FLAG_CROSS
@@ -212,6 +220,7 @@ class Rekonq:
         player = False
         err = False
         nprint = False
+        t.print_color(t.bcolors.HEADER, 'Welcome to Rekonq!')
         while(True):
             if not (err or nprint):
                 self.print_board()
@@ -228,7 +237,19 @@ class Rekonq:
             # Parse command
             cmd = cmd.strip()
             cmd = cmd.lower()
-            if cmd == 'finish':
+            if cmd == 'board':
+                self.print_board()
+                nprint = True
+                continue
+            elif cmd == 'history':
+                for i in range(len(self.hist)):
+                    if not self.hist[i][0]:
+                        t.print_color(t.bcolors.OKBLUE, str(i+1) + '. ' + self.hist[i][1])
+                    else:
+                        t.print_color(t.bcolors.FAIL, str(i+1) + '. ' + self.hist[i][1])
+                nprint = True
+                continue
+            elif cmd == 'finish':
                 winner = self.get_winner()
                 # Print count
                 print(t.bcolors.OKBLUE+'A:'+str(winner[1])+t.bcolors.ENDC+'-'+t.bcolors.FAIL+'B:'+str(winner[2])+t.bcolors.ENDC)
@@ -271,5 +292,6 @@ class Rekonq:
                 err = True
                 print('Invalid move!')
                 continue
-
+            
+            self.hist.append([player, cmd])
             player = not player
