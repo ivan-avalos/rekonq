@@ -13,8 +13,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import time
 import board as b
 
 rekonq = b.Rekonq()
 rekonq.shell()
+
+# Delay before exiting to be able to see 'finish' result.
+print('Exit in 5 seconds...')
+time.sleep (5)
