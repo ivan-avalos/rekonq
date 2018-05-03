@@ -1,7 +1,12 @@
 # Rekonq
 
 Rekonq is a strategy game in which you shall conquer to win. When a cell is
-conquered again by the opposite player, stays conquered permanently. The goal is to conquer most of the board.
+conquered again by the opposite player, stays conquered permanently. The goal
+is to conquer most of the board.
+
+## How to play
+
+Game instructions at docs/howto.md
 
 ## Run
 
