@@ -1,6 +1,7 @@
 # Rekonq
 
-Strategy game in which you shall conquer to win.
+Rekonq is a strategy game in which you shall conquer to win. When a cell is
+conquered again by the opposite player, stays conquered permanently. The goal is to conquer most of the board.
 
 ## Run
 
@@ -8,8 +9,8 @@ Strategy game in which you shall conquer to win.
 screen python3 rekonq.py
 ```
 
-**Note:** _screen_ is required to display colors properly in Unix-like
-  systems.
+**Note:** _screen_ is optional, but required when no GUI is available
+  (in text mode console) to display colors properly in Unix-like systems.
 
 ## Usage
 
