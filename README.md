@@ -27,7 +27,7 @@ The only command I will explain in this README
 
 ## Windows
 
-<a href="https://cmder.net">Cmder</a> is needed to display colors properly in Windows.
+<a href="http://cmder.net">Cmder</a> is needed to display colors properly in Windows.
 
 ## Android
 
