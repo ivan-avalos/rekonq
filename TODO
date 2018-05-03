@@ -1,0 +1,5 @@
+TODO
+- Write rules of game.
+- Custom board size and number of players.
+- Command to save game to a file and recover game from file.
+- Command to save snapshot of current board to a file.
