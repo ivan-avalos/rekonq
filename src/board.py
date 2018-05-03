@@ -60,6 +60,18 @@ def get_cell_char (flags):
 
     return cell_char
 
+welcome_message = """
+  _____      _                     
+ |  __ \    | |                    
+ | |__) |___| | _____  _ __   __ _ 
+ |  _  // _ \ |/ / _ \| '_ \ / _` |
+ | | \ \  __/   < (_) | | | | (_| |
+ |_|  \_\___|_|\_\___/|_| |_|\__, |
+                                | |
+                                |_|
+Welcome to Rekonq!
+"""
+
 help_message = """Commands:
 \t<from> <to> [*|o]   Make a move
 \tboard               Print board
@@ -220,7 +232,7 @@ class Rekonq:
         player = False
         err = False
         nprint = False
-        t.print_color(t.bcolors.HEADER, 'Welcome to Rekonq!')
+        t.print_color(t.bcolors.HEADER, welcome_message)
         while(True):
             if not (err or nprint):
                 self.print_board()
