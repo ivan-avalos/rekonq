@@ -11,15 +11,34 @@ screen python3 rekonq.py
 **Note:** _screen_ is required to display colors properly in Unix-like
   systems.
 
-**Note:** Colors not supported in Windows.
-
 ## Usage
 
-+ Move from cell a1 to b2 and put a *
-    + **[PLAYER A]$** a1 b2 *
+Move from cell a1 to b2 and put a *
 
-+ The only command I will explain in this README
-    + **[PLAYER B]$** help
+```
+[PLAYER A]$ a1 b2 *
+```
+
+The only command I will explain in this README
+
+```
+[PLAYER B]$ help
+```
+
+## Windows
+
+<a href="https://cmder.net">Cmder</a> is needed to display colors properly in Windows.
+
+## Android
+
+1. Download <a href="https://play.google.com/store/apps/details?id=com.termux">Termux</a> from Google Play. 
+2. Write the following commands:
+```bash
+pkg install git python
+git clone https://github.com/ivan-avalos/rekonq.git
+cd rekonq/src
+python rekonq.py
+```
 
 ## License
 
