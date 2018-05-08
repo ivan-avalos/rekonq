@@ -13,12 +13,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# -*- mode: python-mode; python-indent-offset: 4 -*-
 import time
-import board as b
+import shell as sh
 
-rekonq = b.Rekonq()
-rekonq.shell()
+# Initialize game
+shell = sh.Shell()
+shell.start_shell()
 
-# Delay before exiting to be able to see 'finish' result.
+# Delay before exiting to be able to see 'finish' result in screen mode.
 print('Exit in 5 seconds...')
 time.sleep (5)

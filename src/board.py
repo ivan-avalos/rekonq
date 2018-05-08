@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+# -*- mode: python-mode; python-indent-offset: 4 -*-
 
 import tools as t
 
@@ -60,48 +61,6 @@ def get_cell_char (flags):
 
     return cell_char
 
-welcome_message = """
-  _____      _                     
- |  __ \    | |                    
- | |__) |___| | _____  _ __   __ _ 
- |  _  // _ \ |/ / _ \| '_ \ / _` |
- | | \ \  __/   < (_) | | | | (_| |
- |_|  \_\___|_|\_\___/|_| |_|\__, |
-                                | |
-                                |_|
-Welcome to Rekonq!
-"""
-
-help_message = """Commands:
-\t<from> <to> [*|o]   Make a move
-\tboard               Print board
-\thistory             Show moves history
-\tfinish              Finish game and annouce winner
-\texit                Quit game
-\thelp                Show this help menu
-\tcopying             Copyright notice
-
-Example:
-\ta1 b2 *             Move from a1 to b2 and put a '*'
-\tb2 b3 o             Move from b2 to b3 and put a 'o'
-"""
-
-copying_message ="""Rekonq - Strategy game in which you shall conquer to win.
-Copyright (C) 2018  Iván Alejandro Ávalos Díaz <ivan.avalos.diaz@hotmail.com>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-"""
 
 class Rekonq:
     board = []
@@ -224,86 +183,4 @@ class Rekonq:
         elif acount < bcount:
             return [1, acount, bcount] # B wins!
         elif acount == bcount:
-            return [2, acount, bcount] # Tie!
-    
-    # Command interpreter
-    def shell(self):
-        cmd = ''
-        player = False
-        err = False
-        nprint = False
-        t.print_color(t.bcolors.HEADER, welcome_message)
-        while(True):
-            if not (err or nprint):
-                self.print_board()
-            if err:
-                err=False
-            if nprint:
-                nprint=False
-
-            if not player:
-                cmd = input(t.bcolors.OKBLUE+t.bcolors.BOLD+'[PLAYER A]$ '+t.bcolors.ENDC)
-            else:
-                cmd = input(t.bcolors.FAIL+t.bcolors.BOLD+'[PLAYER B]$ '+t.bcolors.ENDC)
-
-            # Parse command
-            cmd = cmd.strip()
-            cmd = cmd.lower()
-            if cmd == 'board':
-                self.print_board()
-                nprint = True
-                continue
-            elif cmd == 'history':
-                for i in range(len(self.hist)):
-                    if not self.hist[i][0]:
-                        t.print_color(t.bcolors.OKBLUE, str(i+1) + '. ' + self.hist[i][1])
-                    else:
-                        t.print_color(t.bcolors.FAIL, str(i+1) + '. ' + self.hist[i][1])
-                nprint = True
-                continue
-            elif cmd == 'finish':
-                winner = self.get_winner()
-                # Print count
-                print(t.bcolors.OKBLUE+'A:'+str(winner[1])+t.bcolors.ENDC+'-'+t.bcolors.FAIL+'B:'+str(winner[2])+t.bcolors.ENDC)
-                # Print winner
-                if winner[0] == 0:
-                    print(t.bcolors.OKBLUE+'Player A wins!'+t.bcolors.ENDC)
-                    break
-                elif winner[0] == 1:
-                    print(t.bcolors.FAIL+'Player B wins!'+t.bcolors.ENDC)
-                    break
-                elif winner[0] == 2:
-                    print(t.bcolors.HEADER+t.bcolors.BOLD+'Tie!'+t.bcolors.ENDC)
-                    break
-            elif cmd == 'exit':
-                break
-            elif cmd == 'help':
-                print(help_message)
-                nprint = True
-                continue
-            elif cmd == 'copying':
-                print(copying_message)
-                nprint = True
-                continue
-
-            if not len(cmd) == 7:
-                print('Invalid command!')
-                err = True
-                continue
-
-            if (not cmd[0].isalpha()) or (not cmd[3].isalpha()) or (not cmd[1].isdigit()) or (not cmd[4].isdigit()) or \
-               (cmd[6] != '*' and cmd[6] != 'o'):
-                print('Invalid command!')
-                err = True
-                continue
-
-            f = cmd[0] + cmd[1]
-            to = cmd[3] + cmd[4]
-            cross = cmd[6] == '*'
-            if not self.exec_move(player, f, to, cross):
-                err = True
-                print('Invalid move!')
-                continue
-            
-            self.hist.append([player, cmd])
-            player = not player
+            return [2, acount, bcount] # Tie!        
