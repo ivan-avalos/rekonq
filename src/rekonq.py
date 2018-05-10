@@ -15,13 +15,35 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 # -*- mode: python-mode; python-indent-offset: 4 -*-
-import time
+import sys
+import getopt
+
 import shell as sh
 
-# Initialize game
-shell = sh.Shell()
-shell.start_shell()
+rekonq_help_message="""Usage: rekonq.py [OPTIONS...]
+Or:    rekonq.py -h
 
-# Delay before exiting to be able to see 'finish' result in screen mode.
-print('Exit in 5 seconds...')
-time.sleep (5)
+Options:
+    -i <file>  Recover saved game from file
+    -h         Show this help menu
+"""
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], 'hi:')
+except getopt.GetoptError:
+    print(rekonq_help_message)
+    sys.exit(1)
+
+for opt, arg in opts:
+    if opt == '-h':
+        print(rekonq_help_message)
+        sys.exit(0)
+    elif opt in ['-i', '--input-file=']:
+        # Load game from file
+        shell = sh.Shell(True)
+        shell.load_game(arg)
+        shell.start_shell()
+        sys.exit(0)
+
+shell = sh.Shell(False)
+shell.start_shell()

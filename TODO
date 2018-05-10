@@ -1,6 +1,5 @@
 TODO
 - Internationalization support: translate to other languages (including Spanish).
-- Custom board size and number of players.
-- Command to save game to a file and recover game from file.
+- Custom number of players.
 - Command to save snapshot of current board to a file.
 Feel free to collaborate with previous TODO's, suggestions and feedback!

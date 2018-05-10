@@ -16,8 +16,9 @@
 
 # -*- mode: python-mode; python-indent-offset: 4 -*-
 
-import ast
 import sys
+import time
+import math
 
 import board as b
 import tools as t
@@ -37,19 +38,20 @@ Type "help" for help.
 """
 
 help_message = """Commands:
-\t<from> <to> [*|o]   Make a move
-\tboard               Print board
-\thistory             Show moves history
-\tcalc                Simple calculator
-\tfinish              Finish game and annouce winner
-\texit                Quit game
-\twelcome             Print ASCII welcome message
-\thelp                Show this help menu
-\tabout               Copyright information
+    <from> <to> [*|o]   Make a move
+    board               Print board
+    history             Show moves history
+    save <file>         Save game to file
+    calc                Simple calculator
+    finish              Finish game and annouce winner
+    exit                Quit game
+    welcome             Print ASCII welcome message
+    help                Show this help menu
+    about               Copyright information
 
 Example:
-\ta1 b2 *             Move from a1 to b2 and put a '*'
-\tb2 b3 o             Move from b2 to b3 and put a 'o'
+    a1 b2 *             Move from a1 to b2 and put a '*'
+    b2 b3 o             Move from b2 to b3 and put a 'o'
 """
 
 copying_message ="""Rekonq - Strategy game in which you shall conquer to win.
@@ -69,6 +71,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+msg_invalid_command = 'Error: Invalid command!'
+msg_invalid_move = 'Error: Invalid move!'
+msg_save_success = 'Game saved successfully!'
+msg_save_error = 'Error: cannot write output file!'
+msg_load_error = 'Error: cannot load input file!'
+
 calc_help_message ="""Commands:
 \t<expression>   Evaluate expression
 \thelp           Show this help menu
@@ -78,8 +86,9 @@ calc_help_message ="""Commands:
 class Shell:
     rekonq = None
     
-    def __init__(self):
-        self.rekonq = b.Rekonq()
+    def __init__(self, load):
+        if not load:
+            self.rekonq = self.init_with_size()
 
     def start_shell (self):
         cmd = ''
@@ -98,42 +107,54 @@ class Shell:
                 nprint=False
 
             cmd = self.prompt_get_input(player)
+            _cmd = cmd.split(' ')[0]
 
             # Commands
-            if cmd == 'board':
+            if cmd == '':
+                nprint = True
+            elif _cmd == 'board':
                 self._board ()
                 nprint = True
-                continue
-            elif cmd == 'history':
+            elif _cmd == 'history':
                 self._history()
                 nprint = True
-                continue
-            elif cmd == 'finish':
+            elif _cmd == 'save':
+                self._save(cmd)
+                nprint = True
+            elif _cmd == 'finish':
                 self._finish()
                 break
-            elif cmd == 'calc':
+            elif _cmd == 'calc':
                 self._calc()
-                continue
-            elif cmd == 'exit':
+            elif _cmd == 'exit':
                 break
-            elif cmd == 'help':
+            elif _cmd == 'help':
                 self._help()
                 nprint = True
-                continue
-            elif cmd == 'welcome':
+            elif _cmd == 'welcome':
                 self._welcome()
                 nprint = True
-                continue
-            elif cmd == 'about':
+            elif _cmd == 'about':
                 self._about()
                 nprint = True
-                continue
-            
-            # Verify, parse and execute a move
-            if not self.parse_move_and_exec (cmd, player):
-                err = True
             else:
-                player = not player
+                # Verify, parse and execute a move
+                if not self.parse_move_and_exec (cmd, player):
+                    err = True
+                else:
+                    player = not player
+
+    def init_with_size (self):
+        size = 0
+        while True:
+            try:
+                size = int(input(t.bcolors.BOLD+'BOARD SIZE ('+str(b.min_size)+'..'+str(b.max_size)+'): '+t.bcolors.ENDC))
+                if size < b.min_size or size > b.max_size:
+                    print ('Number out of range!')
+                else:
+                    return b.Rekonq(size)
+            except ValueError:
+                print ('Write a valid number!')
 
     def prompt_get_input (self, player):
         cmd = ''
@@ -147,25 +168,53 @@ class Shell:
         return cmd
 
     def parse_move_and_exec (self, cmd, player):
-        if not len(cmd) == 7:
-            print('Invalid command!')
+
+        args = cmd.split(' ')
+        # Verify syntax
+        if len(args) != 3:
+            print(msg_invalid_command)
+            return False
+        if len(args[0]) < 2 or len(args[1]) < 2 or len(args[2]) != 1:
+            print(msg_invalid_command)
+            return False
+        if (not args[0][:1].isalpha()) or (not args[1][:1].isalpha()) or \
+           (not args[0][1:].isdigit()) or (not args[1][:1].isalpha()) or \
+           (args[2] != '*' and args[2] != 'o'):
+            print(msg_invalid_command)
             return False
 
-        if (not cmd[0].isalpha()) or (not cmd[3].isalpha()) or (not cmd[1].isdigit()) or (not cmd[4].isdigit()) or \
-           (cmd[6] != '*' and cmd[6] != 'o'):
-            print('Invalid command!')
-            return False
-
-        _from = cmd[0] + cmd[1]
-        to = cmd[3] + cmd[4]
-        cross = cmd[6] == '*'
+        _from = [args[0][:1], args[0][1:]]
+        to = [args[1][:1], args[1][1:]]
+        cross = args[2] == '*'
         if not self.rekonq.exec_move(player, _from, to, cross):
-            print('Invalid move!')
+            print(msg_invalid_move)
             return False
-            
-        self.rekonq.hist.append([player, cmd])
+
         return True
-        
+
+    def load_game(self, filename):
+        try:
+            f = open(filename, 'r')
+            content = f.readlines()
+            content = [x.strip() for x in content]
+            # Initialize board with size in line 0
+            print(int(content[0]))
+            self.rekonq = b.Rekonq(int(content[0]))
+            # Parse and execute moves in file
+            for i in range(1, len(content)):
+                parts = content[i].split('.')
+                player = parts[0].strip()
+                move = parts[1].strip()
+                if player == 'b':
+                    player = True
+                elif player == 'a':
+                    player = False
+                
+                self.parse_move_and_exec(move, player)
+
+            
+        except (OSError, IOError):
+            print(msg_load_error)
 
     def _board(self):
         self.rekonq.print_board()
@@ -176,6 +225,31 @@ class Shell:
                 t.print_color(t.bcolors.OKBLUE, str(i+1) + '. ' + self.rekonq.hist[i][1])
             else:
                 t.print_color(t.bcolors.FAIL, str(i+1) + '. ' + self.rekonq.hist[i][1])
+
+    def _save(self, _cmd):
+        # Verify syntax
+        cmd = _cmd.split(' ')
+        if len(cmd) != 2:
+            print(msg_invalid_command)
+            return False
+
+        # Write file
+        try:
+            f = open(cmd[1], 'w')
+            o = str(self.rekonq.size) + "\n"
+            for i in self.rekonq.hist:
+                if i[0]:
+                    o += 'b.'
+                else:
+                    o += 'a.'
+                o += i[1] + "\n"
+            f.write(o)
+
+            print (msg_save_success + ' ' + cmd[1])
+            return True
+        except (OSError, IOError):
+            print(msg_save_error)
+            return False
 
     def _calc(self):
         expression = ''
@@ -211,6 +285,10 @@ class Shell:
             print(t.bcolors.FAIL+'Player B wins!'+t.bcolors.ENDC)
         elif winner[0] == 2:
             print(t.bcolors.HEADER+t.bcolors.BOLD+'Tie!'+t.bcolors.ENDC)
+
+        # Delay before exiting to be able to see 'finish' result in screen mode.
+        print('Exit in 5 seconds...')
+        time.sleep (5)
 
     def _welcome(self):
         t.print_color(t.bcolors.HEADER, welcome_message)

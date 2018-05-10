@@ -62,33 +62,55 @@ def get_cell_char (flags):
     return cell_char
 
 
+min_size = 4
+max_size = 26
+
 class Rekonq:
+    size = 0
+    err = False
     board = []
     hist  = []
     
-    def __init__(self):
+    def __init__(self, size):
+        # Verify input size
+        if size < min_size or size > max_size:
+            err = True
+            print('Error: Invalid size!')
+            exit(1)
+
+        self.size = size
         # Create empty matrix
         board = []
-        for i in range(8):
+        for i in range(size):
             row = []
-            for j in range(8):
+            for j in range(size):
                 row.append(0)
             self.board.append(row)
                 
         # Initialize game
         self.board[0][0] = cell_flags.FLAG_OCCUPIED
-        self.board[7][7] = cell_flags.FLAG_OCCUPIED | cell_flags.FLAG_PLAYER_B
+        self.board[size-1][size-1] = cell_flags.FLAG_OCCUPIED | cell_flags.FLAG_PLAYER_B
         self.hist = []
 
     def print_board (self):
-        t.print_color(t.bcolors.BOLD, '  ', end='')
+        if self.size >= 10:
+            t.print_color(t.bcolors.BOLD, '   ', end='')
+        else:
+            t.print_color(t.bcolors.BOLD, '  ', end='')
         for i in range(len(self.board)):
             t.print_color(t.bcolors.BOLD, t.one_to_a(i) + ' ', end='')
         print('')
 
         # Rows
         for i in range(len(self.board)):
-            t.print_color(t.bcolors.BOLD, str(i+1)+' ', end='')
+            t.print_color(t.bcolors.BOLD, str(i+1), end='')
+            if self.size >= 10:
+                if i+1 >= 10:
+                    print(' ', end='')
+                else:
+                    print('  ', end='')
+            else:
+                print(' ', end='')
         
             # Cols
             for j in range(len(self.board[i])):
@@ -96,33 +118,36 @@ class Rekonq:
 
             t.print_color(t.bcolors.BOLD, str(i+1)+' ')
 
-        t.print_color(t.bcolors.BOLD, '  ', end='')
+        if self.size >= 10:
+            t.print_color(t.bcolors.BOLD, '   ', end='')
+        else:
+            t.print_color(t.bcolors.BOLD, '  ', end='')
         for i in range(len(self.board)):
             t.print_color(t.bcolors.BOLD, t.one_to_a(i) + ' ', end='')
         print('')
 
 
-    def exec_move(self, player, a, b, bcross):
+    def exec_move(self, player, _a, _b, bcross):
         # Player A = False, Player B = Truep
         # Bcross: X = False, Cross = True
-        # Cell format 'a1'
-        arow = t.a_to_one(a[0])
-        acol = int(a[1])-1
-        brow = t.a_to_one(b[0])
-        bcol = int(b[1])-1
+        # Cell format ['a', '1']
+        arow = t.a_to_one(_a[0])
+        acol = int(_a[1])-1
+        brow = t.a_to_one(_b[0])
+        bcol = int(_b[1])-1
 
         # DEBUG
         #print('From: '+' [row='+ str(arow) + ', col=' + str(acol)+']')
         #print('To  : '+' [row='+ str(brow) + ', col=' + str(bcol)+']')
 
         # Check values to avoid "out of range" error -_-
-        if not (arow >= -1 and arow <= 7):
+        if not (arow >= -1 and arow <= self.size-1):
             return False
-        if not (acol >= -1 and acol <= 7):
+        if not (acol >= -1 and acol <= self.size-1):
             return False
-        if not (brow >= -1 and brow <= 7):
+        if not (brow >= -1 and brow <= self.size-1):
             return False
-        if not (bcol >= -1 and bcol <= 7):
+        if not (bcol >= -1 and bcol <= self.size-1):
             return False
 
         a = self.board[arow][acol]
@@ -163,6 +188,17 @@ class Rekonq:
             self.board[brow][bcol] |= cell_flags.FLAG_PERMANENT
         if player:
             self.board[brow][bcol] |= cell_flags.FLAG_PLAYER_B
+
+        # Step 5. Append command to history
+        cmd = ''
+        cmd += _a[0] + _a[1] + ' '
+        cmd += _b[0] + _b[1] + ' '
+        if bcross:
+            cmd += '*'
+        else:
+            cmd += 'o'
+        self.hist.append([player, cmd])
+
         return True
     
     def get_winner(self):
