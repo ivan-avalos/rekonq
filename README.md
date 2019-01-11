@@ -1,12 +1,14 @@
 # Rekonq
 
+<img src="docs/img/board.png">
+
 Rekonq is a strategy game in which you shall conquer to win. When a cell is
 conquered again by the opposite player, stays conquered permanently. The goal
 is to conquer most of the board.
 
 ## How to play
 
-Game instructions at docs/howto.md
+You can find the game instructions at `docs/howto.md`. For more details about how to use each command, type "help".
 
 ## Run
 
@@ -19,13 +21,13 @@ screen python3 rekonq.py
 
 ## Usage
 
-Move from cell a1 to b2 and put a *
+Expand from cell `a1` to `b2` and put a `*`
 
 ```
 [PLAYER A]$ a1 b2 *
 ```
 
-The only command I will explain in this README
+Get a list of all the available commands and how to use them.
 
 ```
 [PLAYER B]$ help
@@ -39,6 +41,7 @@ The only command I will explain in this README
 
 1. Download <a href="https://play.google.com/store/apps/details?id=com.termux">Termux</a> from Google Play. 
 2. Write the following commands:
+
 ```bash
 pkg install git python
 git clone https://github.com/ivan-avalos/rekonq.git
